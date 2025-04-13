@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Text, View, Pressable, TextInput } from 'react-native';
 import { buttonStyles } from '../../styles/buttonStyles';
 import { createEventFormStyles } from '../../styles/createEventFormStyles';
+import { supabase } from '../../lib/supabase';
 
 
 export default function Settings() {
@@ -15,8 +16,25 @@ export default function Settings() {
   const [host, setHost] = useState('');
   const [price, setPrice] = useState('');
   
-  const handleSubmit = () => {
-    
+  const handleSubmit = async () => {
+    const newEvent = {
+      name: name,
+      location: location,
+      time: time,
+      host: host,
+      price: price,
+      description: description,
+    };
+
+    const {data, error } = await supabase.from('Events').insert([
+      newEvent
+    ]);
+
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Event added:" + data);
+    }
   }
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -26,8 +44,6 @@ export default function Settings() {
       >
         <Text style={{ color: 'white', fontWeight: 'bold' }}>Back</Text>
       </Pressable>
-
-      
       <Text style={createEventFormStyles.createEventFormHeader}>Create an Event</Text>
 
       <View style={createEventFormStyles.inputContainer}>
@@ -74,7 +90,6 @@ export default function Settings() {
           onChangeText={setDescription}>
         </TextInput>
       </View>
-      
       <Pressable style={buttonStyles.submitButton} onPress={handleSubmit}>
         <Text>Submit</Text>
       </Pressable>
